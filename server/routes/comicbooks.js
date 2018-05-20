@@ -1,17 +1,12 @@
 const router = require('express').Router();
-const crypto = require('crypto');
 const axios = require('axios');
-
-const host = 'http://gateway.marvel.com/v1/public';
-const ts = Date.now();
-const keys = `${ts}${process.env.MARVEL_KEY}${process.env.MARVEL_ID}`;
-const hash = crypto.createHash('md5').update(keys).digest("hex");
-const auth = `ts=${ts}&apikey=${process.env.MARVEL_ID}&hash=${hash}`;
+const { host, auth } = require('../serverUtils');
 
 router.get(`/:database`, (req,res) => {
+  console.log(req.params.database)
   axios.get(`${host}/${req.params.database}?${auth}`)
-    .then(response => res.send(response.data.data.results))
-    .catch(err => console.log(err))
+  .then(response => res.send(response.data.data.results))
+  .catch(err => console.log(err))
 })
 
 router.get(`/:database/search/:search`, (req,res) => {

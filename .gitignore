@@ -1,2 +1,4 @@
 /node_modules
 .env
+src/components/comics/index.js
+marvel_lookup.json

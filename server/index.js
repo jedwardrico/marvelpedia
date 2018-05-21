@@ -8,12 +8,10 @@ require('dotenv').config();
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json({ limit: '10mb' }));
 
-app.use('/api', require('./routes/mcu'));
 app.use('/images', require('./routes/images'));
 
 // these are for testing and getting data model structures
 app.use('/api', require('./routes/comicbooks'));
-
 
 app.use('/public', express.static(path.join(__dirname, '../public')));
 app.use('/vendor', express.static(path.join(__dirname, '../node_modules')));

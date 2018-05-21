@@ -11,10 +11,11 @@ class Characters extends React.Component {
     this.state = {
       characters: [],
       page: 0,
-      limit: 40,
+      limit: 42,
       loading: false,
       err: '',
-      letter: ''
+      letter: '',
+      orderBy: 'name'
     }
     this.nextPage = this.nextPage.bind(this); 
     this.prevPage = this.prevPage.bind(this);
@@ -22,52 +23,47 @@ class Characters extends React.Component {
   }
 
   componentDidMount(){
-    const { page, limit } = this.state
+    const { limit, orderBy, letter } = this.state
     this.setState({ loading: true })
-    axios.get(`${characterHost}?limit=${limit}&${auth}`)
-    .then(response => {
-      this.setState({ characters: response.data.data.results, loading: false })
-      })
+    axios.get(`${characterHost}/search/orderBy=${orderBy}&limit=${limit}${letter ? `&nameStartsWith=${letter}` : ''}`)
+    .then(response => { this.setState({ characters: response.data, loading: false })})
     .catch(err => this.setState({ err }))
   }
 
   alphaSort(letter){
-    const { format, orderBy, limit } = this.state;
+    const { format, orderBy, limit, page } = this.state;
     this.setState({ loading: true })
     this.setState({ letter })
-    axios.get(`${characterHost}?limit=${limit}&${letter ? `&nameStartsWith=${letter}` : ''}&${auth}`)
-    .then(response => response.data.data.results)
+    axios.get(`${characterHost}/search/orderBy=${orderBy}&limit=${limit}${letter ? `&nameStartsWith=${letter}` : ''}${`${page > 0 ? `&offset=${page*limit}` : ''}`}`)
+    .then(response => response.data)
     .then(characters => this.setState({ characters }))
     .then(() => this.setState({ loading: false }))
     .catch(err => this.setState({err}))
   }
 
   nextPage(){
-    let { page } = this.state
-    const { format, orderBy, limit, letter } = this.state;
+    const { format, orderBy, limit, letter, page } = this.state;
     this.setState({ loading: true })
-    this.setState({ page: page+1 })
-    axios.get(`${characterHost}?limit=${limit}&${letter ? `&nameStartsWith=${letter}` : ''}&offset=${page*40}&${auth}`)
-      .then(response => response.data.data.results)
-      .then(characters => this.setState({ characters }))
+    const _page = page + 1;
+    axios.get(`${characterHost}/search/orderBy=${orderBy}&limit=${limit}${letter ? `&nameStartsWith=${letter}` : ''}${`${_page == 0 ? '' : `&offset=${_page*limit}`}`}`)
+      .then(response => response.data)
+      .then(characters => this.setState({ characters, page: page+1 }))
       .then(() => this.setState({ loading: false }))
       .catch(err => this.setState({err}))
   }
 
   prevPage(){
-    let { page } = this.state
-    const { format, orderBy, limit } = this.state;
+    const { format, orderBy, limit, letter, page } = this.state;
     this.setState({ loading: true })
-    this.setState({ page: page - 1 })
-    axios.get(`${characterHost}?limit=${limit}&${letter ? `&nameStartsWith=${letter}` : ''}&offset=${page*40}&${auth}`)
-      .then(response => response.data.data.results)
-      .then(characters => this.setState({ characters }))
+    const _page = page-1;
+    axios.get(`${characterHost}/search/orderBy=${orderBy}&limit=${limit}${letter ? `&nameStartsWith=${letter}` : ''}${`${_page == 0 ? '' : `&offset=${_page*limit}`}`}`)
+      .then(response => response.data)
+      .then(characters => this.setState({ characters, page: page-1 }))
       .then(() => this.setState({ loading: false }))
       .catch(err => this.setState({err}))
   }
 
   render(){
-    console.log(this.state)
     const { characters, loading, err, page } = this.state;
     if(!characters) return null
     return (
@@ -77,7 +73,7 @@ class Characters extends React.Component {
           { 
           loading && !err ?
             <div className='text-center'> 
-              <img id='loading-img' src='/public/icons/Blocks.svg' />
+              <img className='loading-img' src='/public/icons/Blocks.svg' />
             </div>
             :
             <CharacterList characters={characters}/>

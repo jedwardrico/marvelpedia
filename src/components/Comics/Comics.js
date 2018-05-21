@@ -11,8 +11,8 @@ class Comics extends React.Component{
     super(props);
     this.state = {
       comics: [],
-      page: 1,
-      limit: 30,
+      page: 0,
+      limit: 32,
       orderBy: 'title',
       format: 'comic',
       letter: '',
@@ -25,10 +25,10 @@ class Comics extends React.Component{
   }
 
   componentWillMount(){
-    const { format, orderBy, loading, page, letter } = this.state;
+    const { format, orderBy, loading, letter, limit } = this.state;
     this.setState({ loading: true })
-    axios.get(`${comicHost}?format=${format}&${letter ? `&titleStartsWith=${letter}` : ''}&orderBy=${orderBy}&limit=${page*30}&${auth}`)
-    .then(response => response.data.data.results)
+    axios.get(`${comicHost}/search/format=${format}${letter ? `&titleStartsWith=${letter}` : ''}&orderBy=${orderBy}&limit=${limit}`)
+    .then(response => response.data)
     .then(comics => this.setState({ comics, loading: false }))
     .catch(err => this.setState({err}))
   }
@@ -37,33 +37,31 @@ class Comics extends React.Component{
     const { format, orderBy, limit } = this.state;
     this.setState({ loading: true })
     this.setState({ letter })
-    axios.get(`${comicHost}?limit=${limit}&${letter ? `&titleStartsWith=${letter}` : ''}&${auth}`)
-    .then(response => response.data.data.results)
-    .then(comics => this.setState({ comics, page: 0 }))
+    axios.get(`${comicHost}/search/format=${format}${letter ? `&titleStartsWith=${letter}` : ''}&orderBy=${orderBy}&limit=${limit}`)
+    .then(response => response.data)
+    .then(comics => this.setState({ comics }))
     .then(() => this.setState({ loading: false }))
     .catch(err => this.setState({err}))
   }
 
   nextPage(){
-    let { page } = this.state
-    const { format, orderBy, letter, limit } = this.state;
-    this.setState({ page: page+1 })
+    const { format, orderBy, limit, letter, page } = this.state;
     this.setState({ loading: true })
-      axios.get(`${comicHost}?limit=${limit}&format=${format}&${letter ? `&titleStartsWith=${letter}` : ''}&orderBy=${orderBy}&offset=${page*30}&${auth}`)
-      .then(response => response.data.data.results)
-      .then(comics => this.setState({ comics }))
+    const _page = page+1;
+    axios.get(`${comicHost}/search/format=${format}${letter ? `&titleStartsWith=${letter}` : ''}&orderBy=${orderBy}&limit=${limit}${`${_page == 0 ? '' : `&offset=${_page*limit}`}`}`)
+      .then(response => response.data)
+      .then(comics => this.setState({ comics, page: page+1 }))
       .then(() => this.setState({ loading: false }))
       .catch(err => this.setState({err}))
   }
 
   prevPage(){
-    let { page } = this.state
-    const { format, orderBy, letter, limit } = this.state;
+    const { format, orderBy, limit, letter, page} = this.state;
     this.setState({ loading: true })
-    this.setState({ page: page-1 })
-      axios.get(`${comicHost}?limit=${limit}&format=${format}&${letter ? `&titleStartsWith=${letter}` : ''}&orderBy=${orderBy}&offset=${page*30}&${auth}`)
-      .then(response => response.data.data.results)
-      .then(comics => this.setState({ comics }))
+    const _page = page-1;
+    axios.get(`${comicHost}/search/format=${format}${letter ? `&titleStartsWith=${letter}` : ''}&orderBy=${orderBy}&limit=${limit}${`${_page == 0 ? '' : `&offset=${_page*limit}`}`}`)
+      .then(response => response.data)
+      .then(comics => this.setState({ comics, page: page-1 }))
       .then(() => this.setState({ loading: false }))
       .catch(err => this.setState({err}))
   }
@@ -77,7 +75,8 @@ class Comics extends React.Component{
         { 
           loading && !err ?
           <div> 
-            <img id='loading-img' src='/public/icons/Blocks.svg' />
+            <img className='loading-img' src='/public/icons/Blocks.svg' />
+            <p> Loading... </p>
           </div>
           :
           <ComicList comics={comics}/>

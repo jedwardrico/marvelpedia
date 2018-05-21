@@ -8,8 +8,14 @@ const CharacterList = (props) => {
     {
       characters.map((character, index)=> {
         return (
-          <div style={{gridColumn: index%4+1}} key={character.id}>
-            <Link to={`/characters/${character.id}`}>{character.name}</Link>
+          <div style={{gridColumn: index%6+2}} className='character' key={character.id}>
+            <img className='character-image' src={`${character.thumbnail.path}/standard_medium.${character.thumbnail.extension}`} />
+            <Link className='character-name' to={`/characters/${character.id}`}>
+              {
+                character.name.length <= 14 ? character.name
+                : `${character.name.slice(0,14)}...`
+              }
+            </Link>
           </div>
         )
       })

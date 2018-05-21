@@ -6,8 +6,6 @@ import Nav from './index/Nav';
 import ImageSearch from './index/ImageSearch';
 import Comic from './comics/Comic';
 import Comics from './comics/Comics';
-import MCU from './mcu/MCU';
-import Film from './mcu/Film';
 import Character from './comics/Character';
 import Characters from './comics/Characters';
 import Results from './comics/Results';
@@ -24,12 +22,11 @@ class Root extends Component {
   }
 
   search(query){
-    console.log(history)
-    axios.get(`${comicHost}?${auth}&titleStartsWith=${query}`)
-      .then(res => res.data.data.results)
+    axios.get(`${comicHost}/search/titleStartsWith=${query}&limit=32`)
+      .then(res => res.data)
       .then(comics => this.setState({ comics }))
-    axios.get(`${characterHost}?${auth}&nameStartsWith=${query}`)
-      .then(res => res.data.data.results)
+    axios.get(`${characterHost}/search/nameStartsWith=${query}`)
+      .then(res => res.data)
       .then(characters => this.setState({ characters }))
     document.location.hash = '/results'
   }

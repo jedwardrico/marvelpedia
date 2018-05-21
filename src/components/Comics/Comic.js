@@ -12,39 +12,51 @@ class Comics extends React.Component {
   }
 
   componentDidMount(){
-    axios.get(`${comicHost}/${this.props.id}?${auth}`)
-    .then(response => this.setState({ comic: response.data.data.results[0] }))
+    axios.get(`${comicHost}/id/${this.props.id}`)
+    .then(response => this.setState({ comic: response.data[0] }))
     .catch(err => console.log(err))
   }
 
   render(){
-    console.log(this.state)
     const { comic } = this.state;
-    if(!comic.title) return null
+    if(!comic.title){
+       return (
+        <div> 
+          <p> Loading... </p>
+          <img className='loading-img' src='/public/icons/Blocks.svg' />
+        </div>
+      )
+    }
     return (
       <div>
         <h1>{comic.title}</h1>
-        <img src={`${comic.thumbnail.path}.${comic.thumbnail.extension}`} />
-        {
-          comic.description ?
-          <h4 className='mb-3 mt-4' dangerouslySetInnerHTML={{__html: comic.description}}></h4>
-          : <h4 className='mb-3 mt-4'> No Description Listed </h4>
-        }
-        {
-          comic.urls.map((url, index) => {
-            switch(url.type){ 
-              case 'detail':
-                return <button className='btn btn-dark mr-1' key={index}><a href={url.url}> See on Marvel.com </a></button>
-              case 'reader':
-                return <button className='btn btn-dark mr-1' key={index}><a href={url.url}> Read online </a></button>
-              case 'purchase':
-                return <button className='btn btn-dark mr-1' key={index}><a href={url.url}> Buy it Here </a></button>
-              default:
-                console.log(url.type)
+        <div className='comic-main'>
+          <img className='image' src={`${comic.thumbnail.path}/portrait_uncanny.${comic.thumbnail.extension}`} />
+          <div className='description'>
+            {
+              comic.description ?
+              <div className='mb-3 mt-4 description-text' dangerouslySetInnerHTML={{__html: comic.description}}></div>
+              : <div className='mb-3 mt-4 description-text'> No Description Listed </div>
             }
-           
-          })          
-        }
+            <div className='buttons'>
+            {
+              comic.urls.map((url, index) => {
+                switch(url.type){ 
+                  case 'detail':
+                    return <button className='btn btn-dark mr-1' key={index}><a href={url.url}> See on Marvel.com </a></button>
+                  case 'reader':
+                    return <button className='btn btn-dark mr-1' key={index}><a href={url.url}> Read online </a></button>
+                  case 'purchase':
+                    return <button className='btn btn-dark mr-1' key={index}><a href={url.url}> Buy it Here </a></button>
+                  default:
+                    console.log(url.type)
+                }
+              
+              })          
+            }
+            </div>
+          </div>
+        </div>
         <h2 className='mb-3 mt-4'> Characters </h2>
         {
           comic.characters.items.length ?

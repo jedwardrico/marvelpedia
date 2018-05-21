@@ -8,8 +8,21 @@ const ComicList = (props) => {
     {
       comics.map((comic, index) => {
         return (
-          <div style={{gridColumn: index%3+1}} key={comic.id}>
-            <Link to={`/comics/${comic.id}`}>{comic.title}</Link>
+          <div className='comic' style={{gridColumn: index%4+2}} key={comic.id}>
+            <img className='comic-image' src={`${comic.thumbnail.path}/portrait_medium.${comic.thumbnail.extension}`} />
+            <Link className='comic-name' to={`/comics/${comic.id}`}>
+              {
+                comic.title
+              }
+               <p className='mt-3'>
+                { 
+                  comic.prices ?
+                  `Price: $${comic.prices[0].price}`
+                  : 'No Price Listed'
+                }
+              </p>
+              
+            </Link>
           </div>
         )
       })

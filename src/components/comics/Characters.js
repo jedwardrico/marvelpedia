@@ -74,6 +74,7 @@ class Characters extends React.Component {
           loading && !err ?
             <div className='text-center'> 
               <img className='loading-img' src='/public/icons/Blocks.svg' />
+              <h2> Loading... </h2>
             </div>
             :
             <CharacterList characters={characters}/>

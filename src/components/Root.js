@@ -16,18 +16,25 @@ class Root extends Component {
     super(props)
     this.state = {
       comics: [],
-      characters: []
+      characters: [],
+      loading: {
+        comics: false,
+        characters: false
+      },
     }
     this.search = this.search.bind(this);
   }
 
   search(query){
+    this.setState({ loading: { comics: true, characters: true }})
     axios.get(`${comicHost}/search/titleStartsWith=${query}&limit=32`)
       .then(res => res.data)
       .then(comics => this.setState({ comics }))
+      .then(() => this.setState({ loading: Object.assign({}, this.state.loading, { comics: false })}))
     axios.get(`${characterHost}/search/nameStartsWith=${query}`)
       .then(res => res.data)
       .then(characters => this.setState({ characters }))
+      .then(() => this.setState({ loading: Object.assign({}, this.state.loading, { characters: false })}))
     document.location.hash = '/results'
   }
 
@@ -44,7 +51,7 @@ class Root extends Component {
             <Route path='/characters' exact render={() => <Characters />}  />
             <Route path='/characters/:id' render={({ match } ) => <Character id={match.params.id} />} />
             <Route path='/image-search' component={ImageSearch} />
-            <Route path='/results' render={() => <Results comics={this.state.comics} characters={this.state.characters}/>} />
+            <Route path='/results' render={() => <Results comics={this.state.comics} loading={this.state.loading} characters={this.state.characters}/>} />
           </div>
         </div>
       </Router>

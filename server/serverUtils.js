@@ -9,7 +9,7 @@ const hash = crypto.createHash('md5').update(keys).digest("hex");
 const auth = `ts=${ts}&apikey=${process.env.MARVEL_ID}&hash=${hash}`;
 
 const client = new vision.ImageAnnotatorClient({ 
-  keyFilename: path.join(__dirname, '../../marvel_lookup.json')
+  keyFilename: path.join(__dirname, '../marvel_lookup.json')
 });
 
 

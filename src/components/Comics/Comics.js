@@ -76,7 +76,7 @@ class Comics extends React.Component{
           loading && !err ?
           <div> 
             <img className='loading-img' src='/public/icons/Blocks.svg' />
-            <p> Loading... </p>
+            <h2> Loading... </h2>
           </div>
           :
           <ComicList comics={comics}/>

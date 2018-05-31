@@ -2007,7 +2007,7 @@ var CharacterList = function CharacterList(props) {
   return _react2.default.createElement(
     'div',
     { className: 'list-grid' },
-    characters.map(function (character, index) {
+    characters.length ? characters.map(function (character, index) {
       return _react2.default.createElement(
         'div',
         { style: { gridColumn: index % 6 + 2 }, className: 'character', key: character.id },
@@ -2018,7 +2018,11 @@ var CharacterList = function CharacterList(props) {
           character.name.length <= 14 ? character.name : character.name.slice(0, 14) + '...'
         )
       );
-    })
+    }) : _react2.default.createElement(
+      'h4',
+      null,
+      ' There are no characters starting with that letter. '
+    )
   );
 };
 
@@ -21861,7 +21865,11 @@ var Root = function (_Component) {
 
     _this.state = {
       comics: [],
-      characters: []
+      characters: [],
+      loading: {
+        comics: false,
+        characters: false
+      }
     };
     _this.search = _this.search.bind(_this);
     return _this;
@@ -21872,15 +21880,20 @@ var Root = function (_Component) {
     value: function search(query) {
       var _this2 = this;
 
+      this.setState({ loading: { comics: true, characters: true } });
       _axios2.default.get(_index.comicHost + '/search/titleStartsWith=' + query + '&limit=32').then(function (res) {
         return res.data;
       }).then(function (comics) {
         return _this2.setState({ comics: comics });
+      }).then(function () {
+        return _this2.setState({ loading: Object.assign({}, _this2.state.loading, { comics: false }) });
       });
       _axios2.default.get(_index.characterHost + '/search/nameStartsWith=' + query).then(function (res) {
         return res.data;
       }).then(function (characters) {
         return _this2.setState({ characters: characters });
+      }).then(function () {
+        return _this2.setState({ loading: Object.assign({}, _this2.state.loading, { characters: false }) });
       });
       document.location.hash = '/results';
     }
@@ -21919,7 +21932,7 @@ var Root = function (_Component) {
               } }),
             _react2.default.createElement(_reactRouterDom.Route, { path: '/image-search', component: _ImageSearch2.default }),
             _react2.default.createElement(_reactRouterDom.Route, { path: '/results', render: function render() {
-                return _react2.default.createElement(_Results2.default, { comics: _this3.state.comics, characters: _this3.state.characters });
+                return _react2.default.createElement(_Results2.default, { comics: _this3.state.comics, loading: _this3.state.loading, characters: _this3.state.characters });
               } })
           )
         )
@@ -26626,7 +26639,8 @@ var SearchBar = function (_Component) {
 
     _this.state = {
       search: '',
-      category: 0
+      category: 0,
+      loading: true
     };
     _this.setCategory = _this.setCategory.bind(_this);
     _this.search = _this.search.bind(_this);
@@ -26649,6 +26663,7 @@ var SearchBar = function (_Component) {
     value: function submit(ev) {
       ev.preventDefault();
       this.props.search(this.state.search);
+      this.setState({ search: '' });
     }
   }, {
     key: 'render',
@@ -26661,7 +26676,7 @@ var SearchBar = function (_Component) {
         _react2.default.createElement(
           'form',
           { onSubmit: this.submit, className: 'form-inline' },
-          _react2.default.createElement('input', { onChange: this.search, className: 'form-control form-control-sm search-input', type: 'search', placeholder: 'Search' }),
+          _react2.default.createElement('input', { onChange: this.search, value: search, className: 'form-control form-control-sm search-input', type: 'search', placeholder: 'Search' }),
           _react2.default.createElement(
             'button',
             { className: 'btn btn-sm btn-outline-light' },
@@ -28044,7 +28059,7 @@ var Comics = function (_React$Component) {
           null,
           _react2.default.createElement('img', { className: 'loading-img', src: '/public/icons/Blocks.svg' }),
           _react2.default.createElement(
-            'p',
+            'h2',
             null,
             ' Loading... '
           )
@@ -28415,7 +28430,12 @@ var Characters = function (_React$Component) {
         loading && !err ? _react2.default.createElement(
           'div',
           { className: 'text-center' },
-          _react2.default.createElement('img', { className: 'loading-img', src: '/public/icons/Blocks.svg' })
+          _react2.default.createElement('img', { className: 'loading-img', src: '/public/icons/Blocks.svg' }),
+          _react2.default.createElement(
+            'h2',
+            null,
+            ' Loading... '
+          )
         ) : _react2.default.createElement(_CharacterList2.default, { characters: characters }),
         err ? _react2.default.createElement(
           'h4',
@@ -28463,9 +28483,11 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 
 var Results = function Results(props) {
   var comics = props.comics,
-      characters = props.characters;
+      characters = props.characters,
+      loading = props.loading;
 
-  return !comics.length && !characters.length ? _react2.default.createElement(
+  console.log(props);
+  return !loading.comics && !loading.characters && !comics.length && !characters.length ? _react2.default.createElement(
     'div',
     { className: 'error' },
     'Whoops, looks like there are no comics or characters with that name.',
@@ -28489,13 +28511,22 @@ var Results = function Results(props) {
       null,
       'Comics: '
     ),
-    comics.length ? _react2.default.createElement(
+    loading.comics ? _react2.default.createElement(
+      'div',
+      { className: 'loading text-center' },
+      _react2.default.createElement('img', { className: 'loading-img', width: '80', height: '80', src: '/public/icons/Blocks.svg' }),
+      _react2.default.createElement(
+        'h2',
+        null,
+        'Loading Results...'
+      )
+    ) : comics.length ? _react2.default.createElement(
       'ul',
       null,
       comics.slice(0, 5).map(function (comic) {
         return _react2.default.createElement(
           'li',
-          null,
+          { key: comic.id },
           _react2.default.createElement(
             _reactRouterDom.Link,
             { to: '/comics/' + comic.id },
@@ -28513,13 +28544,22 @@ var Results = function Results(props) {
       null,
       'Characters: '
     ),
-    characters.length ? _react2.default.createElement(
+    loading.characters ? _react2.default.createElement(
+      'div',
+      { className: 'loading text-center' },
+      _react2.default.createElement('img', { className: 'loading-img', width: '80', height: '80', src: '/public/icons/Blocks.svg' }),
+      _react2.default.createElement(
+        'h2',
+        null,
+        'Loading Results...'
+      )
+    ) : characters.length ? _react2.default.createElement(
       'ul',
       null,
       characters.slice(0, 5).map(function (character) {
         return _react2.default.createElement(
           'li',
-          null,
+          { key: character.id },
           _react2.default.createElement(
             _reactRouterDom.Link,
             { to: '/characters/' + character.id },

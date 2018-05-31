@@ -5,7 +5,8 @@ class SearchBar extends Component {
     super(props);
     this.state = {
       search: '',
-      category: 0
+      category: 0,
+      loading: true,
     }
     this.setCategory = this.setCategory.bind(this);
     this.search = this.search.bind(this);
@@ -22,7 +23,8 @@ class SearchBar extends Component {
 
   submit(ev){
     ev.preventDefault();
-    this.props.search(this.state.search)
+    this.props.search(this.state.search);
+    this.setState({ search: '' })
   }
 
   render(){
@@ -30,7 +32,7 @@ class SearchBar extends Component {
     return (
       <div className='search-bar'>
         <form onSubmit={this.submit} className='form-inline'>
-          <input onChange={this.search} className='form-control form-control-sm search-input' type='search' placeholder='Search'/>
+          <input onChange={this.search} value={search} className='form-control form-control-sm search-input' type='search' placeholder='Search'/>
           <button className='btn btn-sm btn-outline-light'>Go</button>
         </form>
       </div>

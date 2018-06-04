@@ -28145,7 +28145,6 @@ var Character = function (_React$Component) {
       var character = this.state.character;
 
       if (!character.name) return null;
-      console.log(character.comics);
       return _react2.default.createElement(
         'div',
         null,
@@ -28486,7 +28485,6 @@ var Results = function Results(props) {
       characters = props.characters,
       loading = props.loading;
 
-  console.log(props);
   return !loading.comics && !loading.characters && !comics.length && !characters.length ? _react2.default.createElement(
     'div',
     { className: 'error' },

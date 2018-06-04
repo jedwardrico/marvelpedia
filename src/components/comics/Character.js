@@ -20,7 +20,6 @@ class Character extends React.Component {
   render(){
     const { character } = this.state;
     if(!character.name) return null
-    console.log(character.comics)
     return (
       <div>
         <h1 className='mb-2'>{character.name}</h1>

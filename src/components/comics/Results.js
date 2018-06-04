@@ -5,7 +5,6 @@ import { Link } from 'react-router-dom';
 
 const Results = (props) => {
   const { comics, characters, loading } = props;
-  console.log(props)
   return (
     !loading.comics && !loading.characters && !comics.length && !characters.length ?
       <div className='error'> 
